@@ -10,6 +10,7 @@ public class hero : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private int jumps = 2;
     private int jumpsBuffer = 2;
+    private bool isGrounded = false;
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
     private void Awake()
@@ -20,14 +21,15 @@ public class hero : MonoBehaviour
     }
     private void FixedUpdate() 
     {
-        if(CheckGround())
+        CheckGround();
+        if(isGrounded)
             jumpsBuffer = jumps;
     }
     private void Update()
     {
         if(Input.GetButton("Horizontal"))
             Run();
-        if((jumpsBuffer > 0) && Input.GetButtonDown("Jump"))
+        if(isGrounded && Input.GetButtonDown("Jump"))
         {
             jumpsBuffer = jumpsBuffer - 1;
             Jump();
@@ -44,9 +46,9 @@ public class hero : MonoBehaviour
         rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
     
-    private bool CheckGround() 
+    private void CheckGround() 
     {
-        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 1f);
-        return collider.Length > 1;
+        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 0.3f);
+        isGrounded = collider.Length > 1;
     }
 }

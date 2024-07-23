@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class hero : MonoBehaviour
@@ -19,18 +21,19 @@ public class hero : MonoBehaviour
         sprite = GetComponentInChildren<SpriteRenderer>();
 
     }
-    private void FixedUpdate() 
-    {
-        CheckGround();
-        if(isGrounded)
-            jumpsBuffer = jumps;
-    }
+    // private void FixedUpdate() 
+    // {
+    //     CheckGround();
+    //     if(isGrounded)
+    //         jumpsBuffer = jumps;
+    // }
     private void Update()
     {
         if(Input.GetButton("Horizontal"))
             Run();
-        if(isGrounded && Input.GetButtonDown("Jump"))
+        if(jumpsBuffer > 0 && Input.GetButtonDown("Jump"))
         {
+            Debug.Log("Jump");
             jumpsBuffer = jumpsBuffer - 1;
             Jump();
         }
@@ -46,6 +49,31 @@ public class hero : MonoBehaviour
         rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
     
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        ContactPoint2D contact = collision.GetContact(0);
+        Debug.Log("Enter" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
+        if (Math.Abs(contact.point.y - collision.otherCollider.bounds.min.y) < 0.3f){
+           jumpsBuffer = jumps;
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        ContactPoint2D contact = collision.GetContact(0);
+        Debug.Log("Stay" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
+        if (Math.Abs(contact.point.y - collision.otherCollider.bounds.min.y) < 0.01f){
+            isGrounded = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        ContactPoint2D contact = collision.GetContact(0);
+        Debug.Log("Exit" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
+        isGrounded = false;
+    }
+
     private void CheckGround() 
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 0.3f);

@@ -31,7 +31,7 @@ public class hero : MonoBehaviour
             Run();
         if(isGrounded && Input.GetButtonDown("Jump"))
         {
-            jumpsBuffer = jumpsBuffer - 1;
+            jumpsBuffer--;
             Jump();
         }
     }
@@ -48,7 +48,7 @@ public class hero : MonoBehaviour
     
     private void CheckGround() 
     {
-        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 0.3f);
+        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 7.5f);
         isGrounded = collider.Length > 1;
     }
 }

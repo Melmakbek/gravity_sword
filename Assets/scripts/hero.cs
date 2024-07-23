@@ -34,9 +34,16 @@ public class hero : MonoBehaviour
         if(jumpsBuffer > 0 && Input.GetButtonDown("Jump"))
         {
             Debug.Log("Jump");
-            jumpsBuffer = jumpsBuffer - 1;
+            jumpsBuffer--;
             Jump();
         }
+        if(Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Debug.Log("Up");
+            changeGravity(1);
+        }
+        if(Input.GetKeyDown(KeyCode.DownArrow))
+            changeGravity(2);
     }
     private void Run()
     {
@@ -78,5 +85,19 @@ public class hero : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 7.5f);
         isGrounded = collider.Length > 1;
+    }
+
+    private void changeGravity(int x)
+    {
+        switch(x)
+        {
+            case 1:
+                Debug.Log("Up");
+                Physics2D.gravity = new Vector3(0, 9.81F);
+                break;
+            case 2:
+                Physics2D.gravity = new Vector3(0, -9.81F);
+                break;
+        }
     }
 }

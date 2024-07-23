@@ -29,6 +29,13 @@ public class hero : MonoBehaviour
     private void Update()
     {
         if(Input.GetButton("Horizontal"))
+            if(Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                Debug.Log("Up");
+                changeGravity("Left");
+            }   
+            if(Input.GetKeyDown(KeyCode.RightArrow))
+                changeGravity("Right");
             Run();
         if(Input.GetButtonDown("Jump"))
         {
@@ -45,13 +52,14 @@ public class hero : MonoBehaviour
                     instantJump = true;
             }
         }
-        if(Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            Debug.Log("Up");
-            changeGravity(1);
-        }
-        if(Input.GetKeyDown(KeyCode.DownArrow))
-            changeGravity(2);
+        if(Input.GetButton("Vertical"))
+            if(Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                Debug.Log("Up");
+                changeGravity("Up");
+            }   
+            if(Input.GetKeyDown(KeyCode.DownArrow))
+                changeGravity("Down");
     }
     private void Run()
     {
@@ -96,16 +104,22 @@ public class hero : MonoBehaviour
         isGrounded = false;
     }
 
-    private void changeGravity(int x)
+    private void changeGravity(string x)
     {
         switch(x)
         {
-            case 1:
+            case "Up":
                 Debug.Log("Up");
                 Physics2D.gravity = new Vector3(0, 9.81F);
                 break;
-            case 2:
+            case "Down":
                 Physics2D.gravity = new Vector3(0, -9.81F);
+                break;
+            case "Left":
+                Physics2D.gravity = new Vector3(-9.81F, 0);
+                break;
+            case "Right":
+                Physics2D.gravity = new Vector3(9.81F, 0);
                 break;
         }
     }

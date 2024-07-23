@@ -39,7 +39,7 @@ public class hero : MonoBehaviour
             }
             else {
                 Vector2 lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
-                Vector2 rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+                Vector2 rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - jumpCheckArea);
                 Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
                 if (collider.Length > 1)
                     instantJump = true;

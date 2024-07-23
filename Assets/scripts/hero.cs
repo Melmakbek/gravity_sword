@@ -9,7 +9,7 @@ public class hero : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField] private float speed = 3f;
     [SerializeField] private int lives = 5;
-    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float jumpForce = 0.1f;
     [SerializeField] private int jumps = 2;
     private int jumpsBuffer = 2;
     private float jumpCheckArea = 0.5f;
@@ -61,7 +61,7 @@ public class hero : MonoBehaviour
 
     private void Jump()
     {
-        rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+        rb.AddForce(-1 / 9.81F * jumpForce * Physics2D.gravity, ForceMode2D.Impulse);
     }
     
     private void OnCollisionEnter2D(Collision2D collision)

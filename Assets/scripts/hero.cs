@@ -12,30 +12,38 @@ public class hero : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private int jumps = 2;
     private int jumpsBuffer = 2;
+    private float jumpCheckArea = 0.5f;
+    private float accuracyCheckArea = 0.05f;
+    private bool instantJump = false;
     private bool isGrounded = false;
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
+    private Collider2D playerCollider;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponentInChildren<SpriteRenderer>();
-
+        playerCollider = GetComponent<Collider2D>();
     }
-    // private void FixedUpdate() 
-    // {
-    //     CheckGround();
-    //     if(isGrounded)
-    //         jumpsBuffer = jumps;
-    // }
+
     private void Update()
     {
         if(Input.GetButton("Horizontal"))
             Run();
-        if(jumpsBuffer > 0 && Input.GetButtonDown("Jump"))
+        if(Input.GetButtonDown("Jump"))
         {
-            Debug.Log("Jump");
-            jumpsBuffer--;
-            Jump();
+
+            if (jumpsBuffer > 0){
+                jumpsBuffer--;
+                Jump();
+            }
+            else {
+                Vector2 lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
+                Vector2 rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+                Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
+                if (collider.Length > 1)
+                    instantJump = true;
+            }
         }
         if(Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -58,33 +66,34 @@ public class hero : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        ContactPoint2D contact = collision.GetContact(0);
-        Debug.Log("Enter" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
-        if (Math.Abs(contact.point.y - collision.otherCollider.bounds.min.y) < 0.3f){
-           jumpsBuffer = jumps;
+        Vector2 lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
+        Vector2 rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+        Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
+        if (collider.Length > 1){
+            if (instantJump){
+                Jump();
+                jumpsBuffer = jumps - 1;
+                instantJump = false;
+            } else {
+                jumpsBuffer = jumps;
+            }
         }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        ContactPoint2D contact = collision.GetContact(0);
-        Debug.Log("Stay" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
-        if (Math.Abs(contact.point.y - collision.otherCollider.bounds.min.y) < 0.01f){
+        Vector2 lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
+        Vector2 rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+        Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
+        if (collider.Length > 1){
             isGrounded = true;
+            jumpsBuffer = jumps;
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        ContactPoint2D contact = collision.GetContact(0);
-        Debug.Log("Exit" + isGrounded.ToString() + contact.point.y.ToString() + collision.otherCollider.bounds.min.y.ToString());
         isGrounded = false;
-    }
-
-    private void CheckGround() 
-    {
-        Collider2D[] collider = Physics2D.OverlapCircleAll(transform.position, 7.5f);
-        isGrounded = collider.Length > 1;
     }
 
     private void changeGravity(int x)

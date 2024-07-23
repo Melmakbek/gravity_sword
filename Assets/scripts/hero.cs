@@ -156,15 +156,20 @@ public class hero : MonoBehaviour
             case "Up":
                 Debug.Log("Up");
                 Physics2D.gravity = new Vector3(0, 9.81F);
+                transform.Rotate(0.0f, 0.0f, 180.0f - transform.eulerAngles[2]);
                 break;
             case "Down":
                 Physics2D.gravity = new Vector3(0, -9.81F);
+                transform.Rotate(0.0f, 0.0f, 0.0f - transform.eulerAngles[2]);
                 break;
             case "Left":
                 Physics2D.gravity = new Vector3(-9.81F, 0);
+                transform.Rotate(0.0f, 0.0f, -90.0f - transform.eulerAngles[2]);
                 break;
             case "Right":
                 Physics2D.gravity = new Vector3(9.81F, 0);
+                transform.Rotate(0.0f, 0.0f, 90.0f - transform.eulerAngles[2]);
+                Debug.Log(transform.eulerAngles);
                 break;
         }
         currentGravityDirection = Physics2D.gravity / 9.81F;

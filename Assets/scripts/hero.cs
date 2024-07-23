@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class hero : MonoBehaviour
@@ -16,6 +17,8 @@ public class hero : MonoBehaviour
     private float accuracyCheckArea = 0.05f;
     private bool instantJump = false;
     private bool isGrounded = false;
+
+    private Vector2 currentGravityDirection = new Vector2(0, -1);
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
     private Collider2D playerCollider;
@@ -36,7 +39,10 @@ public class hero : MonoBehaviour
             }   
             if(Input.GetKeyDown(KeyCode.RightArrow))
                 changeGravity("Right");
-            Run();
+            if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+            {
+                Run();
+            }
         if(Input.GetButtonDown("Jump"))
         {
 
@@ -76,7 +82,7 @@ public class hero : MonoBehaviour
     }
     private void Run()
     {
-        Vector3 dir = transform.right * Input.GetAxis("Horizontal");
+        Vector3 dir = currentGravityDirection.Perpendicular2() * Input.GetAxis("Horizontal");
         transform.position = Vector3.MoveTowards(transform.position, transform.position + dir, speed * Time.deltaTime);
     }
 
@@ -161,5 +167,6 @@ public class hero : MonoBehaviour
                 Physics2D.gravity = new Vector3(9.81F, 0);
                 break;
         }
+        currentGravityDirection = Physics2D.gravity / 9.81F;
     }
 }

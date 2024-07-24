@@ -5,7 +5,7 @@ using UnityEngine;
 public class cameraControl : MonoBehaviour
 {
     // Start is called before the first frame update
-    public float dumping = 1.5f
+    public float dumping = 1.5f;
     public Vector2 offset = new Vector2(2f, 1f);
     public bool isLeft = false;
     private Transform player;
@@ -28,7 +28,7 @@ public class cameraControl : MonoBehaviour
         }
         else
         {
-            target = new Vector3(player.position.x + offset.x, player.position.y + offset.y, transform.position.z);
+            target = new Vector3(player.position.x + offset.x, player.position.y - offset.y, transform.position.z);
         }
         transform.position = Vector3.Lerp(transform.position, target, dumping * Time.deltaTime);
 

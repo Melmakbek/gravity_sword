@@ -154,49 +154,29 @@ public class hero : MonoBehaviour
             {
                 case "Up":
                     Physics2D.gravity = new Vector3(0, 9.81F);
-                    StartCoroutine(rotate("up"));
-                    //transform.Rotate(0.0f, 0.0f, 180.0f - transform.eulerAngles[2]);
+                    StartCoroutine(rotateTo(Quaternion.Euler(0.0f, 0.0f, 180.0f)));
                     break;
                 case "Down":
                     Physics2D.gravity = new Vector3(0, -9.81F);
-                    StartCoroutine(rotate("down"));
-                    //transform.Rotate(0.0f, 0.0f, 0.0f - transform.eulerAngles[2]);
+                    StartCoroutine(rotateTo(Quaternion.Euler(0.0f, 0.0f, 0.0f)));
                     break;
                 case "Left":
                     Physics2D.gravity = new Vector3(-9.81F, 0);
-                    StartCoroutine(rotate("left"));
-                    //transform.Rotate(0.0f, 0.0f, -90.0f - transform.eulerAngles[2]);
+                    StartCoroutine(rotateTo(Quaternion.Euler(0.0f, 0.0f, -90.0f)));
                     break;
                 case "Right":
                     Physics2D.gravity = new Vector3(9.81F, 0);
-                    StartCoroutine(rotate("right"));
-                    //transform.Rotate(0.0f, 0.0f, 90.0f - transform.eulerAngles[2]);
+                    StartCoroutine(rotateTo(Quaternion.Euler(0.0f, 0.0f, 90.0f)));
                     break;
             }
             currentGravityDirection = Physics2D.gravity / 9.81F;
         }
     }
 
-    IEnumerator rotate(string dir){
+    IEnumerator rotateTo(Quaternion targetRotation){
         rotating = true;
-        Quaternion fullRotation = Quaternion.Euler(0f, 0f, 0f);
-        switch (dir){
-            case "up":
-                fullRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
-                break;
-            case "down":
-                fullRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-                break;
-            case "right":
-                fullRotation = Quaternion.Euler(0.0f, 0.0f, 90.0f);
-                break;
-            case "left":
-                fullRotation = Quaternion.Euler(0.0f, 0.0f, -90.0f);
-                break;
-        }
         float timeElapsed = 0;
         Quaternion startRotation = transform.rotation;
-        Quaternion targetRotation = fullRotation;
         while (timeElapsed < rotateDuration){
             transform.rotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / rotateDuration);
             timeElapsed += Time.deltaTime;

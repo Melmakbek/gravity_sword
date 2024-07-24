@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Threading;
 using Unity.VisualScripting;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class hero : MonoBehaviour
@@ -12,6 +10,8 @@ public class hero : MonoBehaviour
     [SerializeField] private int lives = 5;
     [SerializeField] private float jumpForce = 0.1f;
     [SerializeField] private int jumps = 2;
+    private bool rotating = false;
+    private float rotateDuration = 0.2f;
     private int jumpsBuffer = 2;
     private float jumpCheckArea = 0.5f;
     private float accuracyCheckArea = 0.05f;
@@ -34,7 +34,6 @@ public class hero : MonoBehaviour
         if(Input.GetButton("Horizontal"))
             if(Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                Debug.Log("Up");
                 changeGravity("Left");
             }   
             if(Input.GetKeyDown(KeyCode.RightArrow))
@@ -74,7 +73,6 @@ public class hero : MonoBehaviour
         if(Input.GetButton("Vertical"))
             if(Input.GetKeyDown(KeyCode.UpArrow))
             {
-                Debug.Log("Up");
                 changeGravity("Up");
             }   
             if(Input.GetKeyDown(KeyCode.DownArrow))
@@ -151,27 +149,60 @@ public class hero : MonoBehaviour
 
     private void changeGravity(string x)
     {
-        switch(x)
-        {
-            case "Up":
-                Debug.Log("Up");
-                Physics2D.gravity = new Vector3(0, 9.81F);
-                transform.Rotate(0.0f, 0.0f, 180.0f - transform.eulerAngles[2]);
+        if (!rotating){
+            switch(x)
+            {
+                case "Up":
+                    Physics2D.gravity = new Vector3(0, 9.81F);
+                    StartCoroutine(rotate("up"));
+                    //transform.Rotate(0.0f, 0.0f, 180.0f - transform.eulerAngles[2]);
+                    break;
+                case "Down":
+                    Physics2D.gravity = new Vector3(0, -9.81F);
+                    StartCoroutine(rotate("down"));
+                    //transform.Rotate(0.0f, 0.0f, 0.0f - transform.eulerAngles[2]);
+                    break;
+                case "Left":
+                    Physics2D.gravity = new Vector3(-9.81F, 0);
+                    StartCoroutine(rotate("left"));
+                    //transform.Rotate(0.0f, 0.0f, -90.0f - transform.eulerAngles[2]);
+                    break;
+                case "Right":
+                    Physics2D.gravity = new Vector3(9.81F, 0);
+                    StartCoroutine(rotate("right"));
+                    //transform.Rotate(0.0f, 0.0f, 90.0f - transform.eulerAngles[2]);
+                    break;
+            }
+            currentGravityDirection = Physics2D.gravity / 9.81F;
+        }
+    }
+
+    IEnumerator rotate(string dir){
+        rotating = true;
+        Quaternion fullRotation = Quaternion.Euler(0f, 0f, 0f);
+        switch (dir){
+            case "up":
+                fullRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
                 break;
-            case "Down":
-                Physics2D.gravity = new Vector3(0, -9.81F);
-                transform.Rotate(0.0f, 0.0f, 0.0f - transform.eulerAngles[2]);
+            case "down":
+                fullRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
                 break;
-            case "Left":
-                Physics2D.gravity = new Vector3(-9.81F, 0);
-                transform.Rotate(0.0f, 0.0f, -90.0f - transform.eulerAngles[2]);
+            case "right":
+                fullRotation = Quaternion.Euler(0.0f, 0.0f, 90.0f);
                 break;
-            case "Right":
-                Physics2D.gravity = new Vector3(9.81F, 0);
-                transform.Rotate(0.0f, 0.0f, 90.0f - transform.eulerAngles[2]);
-                Debug.Log(transform.eulerAngles);
+            case "left":
+                fullRotation = Quaternion.Euler(0.0f, 0.0f, -90.0f);
                 break;
         }
-        currentGravityDirection = Physics2D.gravity / 9.81F;
+        float timeElapsed = 0;
+        Quaternion startRotation = transform.rotation;
+        Quaternion targetRotation = fullRotation;
+        while (timeElapsed < rotateDuration){
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / rotateDuration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.rotation = targetRotation;
+        rotating = false;
     }
 }

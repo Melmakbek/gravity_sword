@@ -28,7 +28,7 @@ public class cameraControl : MonoBehaviour
         }
         else
         {
-            target = new Vector3(player.position.x + offset.x, player.position.y + offset.y, transform.position.z);
+            target = new Vector3(player.position.x + offset.x, player.position.y - offset.y, transform.position.z);
         }
         transform.position = Vector3.Lerp(transform.position, target, dumping * Time.deltaTime);
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class cameraControl : MonoBehaviour
 {
     // Start is called before the first frame update
-    public float dumping = 1.5f
+    public float dumping = 1.5f;
     public Vector2 offset = new Vector2(2f, 1f);
     public bool isLeft = false;
     private Transform player;

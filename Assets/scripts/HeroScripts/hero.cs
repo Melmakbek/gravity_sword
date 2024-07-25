@@ -13,19 +13,21 @@ public class hero : MonoBehaviour
     private float rotateDuration = 0.2f;
     private int jumpsBuffer = 2;
     private float jumpCheckArea = 0.5f;
+    private float boxCheckArea = 0.7f;
     private float accuracyCheckArea = 0.05f;
     private bool instantJump = false;
     private bool isGrounded = false;
-
+    private bool isCarryingBox = false;
+    private BoxCollider2D boxCollider = null;
     private Vector2 currentGravityDirection = new Vector2(0, -1);
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
-    private Collider2D playerCollider;
+    private BoxCollider2D playerCollider;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponentInChildren<SpriteRenderer>();
-        playerCollider = GetComponent<Collider2D>();
+        playerCollider = GetComponent<BoxCollider2D>();
     }
 
     private void Update()
@@ -49,24 +51,61 @@ public class hero : MonoBehaviour
                 Jump();
             }
             else {
-                Vector2 lu = new Vector2(0, 0);
-                Vector2 rd = new Vector2(0, 0);
+                Collider2D[] colliders;
                 if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-                    lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
-                    rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - jumpCheckArea);
+                    colliders = GetCollidersOnSide("Down", jumpCheckArea);
                 } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-                    lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.max.y + jumpCheckArea);
-                    rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.max.y);
+                    colliders = GetCollidersOnSide("Up", jumpCheckArea);
                 } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-                    lu = new Vector2(playerCollider.bounds.max.x, playerCollider.bounds.max.y - accuracyCheckArea);
-                    rd = new Vector2(playerCollider.bounds.max.x + jumpCheckArea, playerCollider.bounds.min.y + accuracyCheckArea);
+                    colliders = GetCollidersOnSide("Right", jumpCheckArea);
                 } else {
-                    lu = new Vector2(playerCollider.bounds.min.x - jumpCheckArea, playerCollider.bounds.max.y - accuracyCheckArea);
-                    rd = new Vector2(playerCollider.bounds.min.x, playerCollider.bounds.min.y + accuracyCheckArea);
+                    colliders = GetCollidersOnSide("Left", jumpCheckArea);
                 }
-                Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
-                if (collider.Length > 1)
+                if (colliders.Length > 1)
                     instantJump = true;
+            }
+        }
+        if(Input.GetKeyDown("e")){
+            Debug.Log(isCarryingBox);
+            if(isCarryingBox){
+                isCarryingBox = false;
+                boxCollider = null;
+            } else {
+                Collider2D[] colliders;
+                if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
+                    if(sprite.flipX){
+                        colliders = GetCollidersOnSide("Left", boxCheckArea);
+                    } else {
+                        colliders = GetCollidersOnSide("Right", boxCheckArea);
+                    }
+                } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
+                    if(sprite.flipX){
+                        colliders = GetCollidersOnSide("Right", boxCheckArea);
+                    } else {
+                        colliders = GetCollidersOnSide("Left", boxCheckArea);
+                    }
+                } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
+                    if(sprite.flipX){
+                        colliders = GetCollidersOnSide("Down", boxCheckArea);
+                    } else {
+                        colliders = GetCollidersOnSide("Up", boxCheckArea);
+                    }
+                } else {
+                    if(sprite.flipX){
+                        colliders = GetCollidersOnSide("Up", boxCheckArea);
+                    } else {
+                        colliders = GetCollidersOnSide("Down", boxCheckArea);
+                    }
+                }
+                for(int i = 0; i < colliders.Length; i++){
+                    if(colliders[i].tag == "Box"){
+                        boxCollider = (BoxCollider2D)colliders[i];
+                        break;
+                    }
+                }
+                if(boxCollider != null){
+                    isCarryingBox = true;
+                }
             }
         }
         if(Input.GetButton("Vertical"))
@@ -76,39 +115,71 @@ public class hero : MonoBehaviour
             }   
             if(Input.GetKeyDown(KeyCode.DownArrow))
                 changeGravity("Down");
+        if(isCarryingBox){
+            Vector3 playerPosition;
+            Quaternion playerRotation;
+            playerCollider.transform.GetPositionAndRotation(out playerPosition, out playerRotation);
+            if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
+                if(sprite.flipX){
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, playerPosition.y, 0), playerRotation);
+                } else {
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, playerPosition.y, 0), playerRotation);
+                }
+            } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
+                if(sprite.flipX){
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, playerPosition.y, 0), playerRotation);
+                } else {
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, playerPosition.y, 0), playerRotation);
+                }
+            } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
+                if(sprite.flipX){
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
+                } else {
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
+                }
+            } else {
+                if(sprite.flipX){
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
+                } else {
+                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
+                }
+            }
+        }
     }
     private void Run()
     {
         Vector3 dir = currentGravityDirection.Perpendicular2() * Input.GetAxis("Horizontal");
         transform.position = Vector3.MoveTowards(transform.position, transform.position + dir, speed * Time.deltaTime);
+        if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
+            sprite.flipX = dir.x < 0.0f;
+        } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
+            sprite.flipX = dir.x > 0.0f;
+        } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
+            sprite.flipX = dir.y < 0.0f;
+        } else {
+            sprite.flipX = dir.y > 0.0f;
+        }
     }
 
     private void Jump()
     {   
-        Debug.Log("Jump");
         rb.velocity = Vector2.zero;
         rb.AddForce(-1 / 9.81F * jumpForce * Physics2D.gravity, ForceMode2D.Impulse);
     }
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Vector2 lu = new Vector2(0, 0);
-        Vector2 rd = new Vector2(0, 0);
+        Collider2D[] colliders;
         if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-            lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
-            rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+            colliders = GetCollidersOnSide("Down", accuracyCheckArea);
         } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-            lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.max.y + accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.max.y);
+            colliders = GetCollidersOnSide("Up", accuracyCheckArea);
         } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-            lu = new Vector2(playerCollider.bounds.max.x, playerCollider.bounds.max.y - accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.max.x + accuracyCheckArea, playerCollider.bounds.min.y + accuracyCheckArea);
+            colliders = GetCollidersOnSide("Right", accuracyCheckArea);
         } else {
-            lu = new Vector2(playerCollider.bounds.min.x - accuracyCheckArea, playerCollider.bounds.max.y - accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.min.x, playerCollider.bounds.min.y + accuracyCheckArea);
+            colliders = GetCollidersOnSide("Left", accuracyCheckArea);
         }
-        Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
-        if (collider.Length > 1){
+        if (colliders.Length > 1){
             if (instantJump){
                 Jump();
                 jumpsBuffer = jumps - 1;
@@ -121,23 +192,17 @@ public class hero : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        Vector2 lu = new Vector2(0, 0);
-        Vector2 rd = new Vector2(0, 0);
+        Collider2D[] colliders;
         if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-            lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
-            rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - accuracyCheckArea);
+            colliders = GetCollidersOnSide("Down", accuracyCheckArea);
         } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-            lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.max.y + accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.max.y);
+            colliders = GetCollidersOnSide("Up", accuracyCheckArea);
         } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-            lu = new Vector2(playerCollider.bounds.max.x, playerCollider.bounds.max.y - accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.max.x + accuracyCheckArea, playerCollider.bounds.min.y + accuracyCheckArea);
+            colliders = GetCollidersOnSide("Right", accuracyCheckArea);
         } else {
-            lu = new Vector2(playerCollider.bounds.min.x - accuracyCheckArea, playerCollider.bounds.max.y - accuracyCheckArea);
-            rd = new Vector2(playerCollider.bounds.min.x, playerCollider.bounds.min.y + accuracyCheckArea);
+            colliders = GetCollidersOnSide("Left", accuracyCheckArea);
         }
-        Collider2D[] collider = Physics2D.OverlapAreaAll(lu, rd);
-        if (collider.Length > 1){
+        if (colliders.Length > 1){
             isGrounded = true;
             jumpsBuffer = jumps;
         }
@@ -174,6 +239,18 @@ public class hero : MonoBehaviour
         }
     }
 
+    private Quaternion GetRotationQuaternionFromGravity(){
+        if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
+            return Quaternion.Euler(0.0f, 0.0f, 0.0f);
+        } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
+            return Quaternion.Euler(0.0f, 0.0f, 180.0f);
+        } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
+            return Quaternion.Euler(0.0f, 0.0f, 90.0f);
+        } else {
+            return Quaternion.Euler(0.0f, 0.0f, -90.0f);
+        }
+    }
+
     IEnumerator rotateTo(Quaternion targetRotation){
         rotating = true;
         float timeElapsed = 0;
@@ -185,5 +262,29 @@ public class hero : MonoBehaviour
         }
         transform.rotation = targetRotation;
         rotating = false;
+    }
+    private Collider2D[] GetCollidersOnSide(string side, float checkDepth){
+        Vector2 lu = Vector2.zero;
+        Vector2 rd = Vector2.zero;
+        switch(side){
+            case "Down":
+                lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.min.y);
+                rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.min.y - checkDepth);
+                break;
+            case "Up":
+                lu = new Vector2(playerCollider.bounds.min.x + accuracyCheckArea, playerCollider.bounds.max.y + checkDepth);
+                rd = new Vector2(playerCollider.bounds.max.x - accuracyCheckArea, playerCollider.bounds.max.y);
+                break;
+            case "Right":
+                lu = new Vector2(playerCollider.bounds.max.x, playerCollider.bounds.max.y - accuracyCheckArea);
+                rd = new Vector2(playerCollider.bounds.max.x + checkDepth, playerCollider.bounds.min.y + accuracyCheckArea);
+                break;
+            case "Left":
+                lu = new Vector2(playerCollider.bounds.min.x - checkDepth, playerCollider.bounds.max.y - accuracyCheckArea);
+                rd = new Vector2(playerCollider.bounds.min.x, playerCollider.bounds.min.y + accuracyCheckArea);
+                break;
+        }
+        Collider2D[] colliders = Physics2D.OverlapAreaAll(lu, rd);
+        return colliders;
     }
 }

@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 176977525}
   m_Layer: 0
   m_Name: box
-  m_TagString: Untagged
+  m_TagString: Box
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 319356549}
   m_Layer: 0
   m_Name: Square
-  m_TagString: Untagged
+  m_TagString: Box
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

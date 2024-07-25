@@ -86,6 +86,7 @@ public class hero : MonoBehaviour
     private void Jump()
     {   
         Debug.Log("Jump");
+        rb.velocity = Vector2.zero;
         rb.AddForce(-1 / 9.81F * jumpForce * Physics2D.gravity, ForceMode2D.Impulse);
     }
     

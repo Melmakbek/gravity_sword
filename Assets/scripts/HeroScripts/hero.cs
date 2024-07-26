@@ -69,6 +69,7 @@ public class hero : MonoBehaviour
             Debug.Log(isCarryingBox);
             if(isCarryingBox){
                 isCarryingBox = false;
+                boxCollider.transform.SetParent(null);
                 boxCollider = null;
             } else {
                 Collider2D[] colliders;
@@ -103,7 +104,7 @@ public class hero : MonoBehaviour
                         break;
                     }
                 }
-                if(boxCollider != null){
+                if (boxCollider != null){
                     isCarryingBox = true;
                 }
             }
@@ -116,34 +117,37 @@ public class hero : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.DownArrow))
                 changeGravity("Down");
         if(isCarryingBox){
-            Vector3 playerPosition;
-            Quaternion playerRotation;
-            playerCollider.transform.GetPositionAndRotation(out playerPosition, out playerRotation);
-            if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-                if(sprite.flipX){
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, playerPosition.y, 0), playerRotation);
-                } else {
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, playerPosition.y, 0), playerRotation);
-                }
-            } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-                if(sprite.flipX){
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, playerPosition.y, 0), playerRotation);
-                } else {
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, playerPosition.y, 0), playerRotation);
-                }
-            } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-                if(sprite.flipX){
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
-                } else {
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
-                }
+            boxCollider.gameObject.transform.SetParent(playerCollider.gameObject.transform);
+            if(sprite.flipX){
+                boxCollider.transform.SetLocalPositionAndRotation(new Vector3( - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, 0, 0), Quaternion.Euler(0, 0, 0));
             } else {
-                if(sprite.flipX){
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
-                } else {
-                    boxCollider.transform.SetPositionAndRotation(new Vector3(playerPosition.x, playerPosition.y - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
-                }
+                boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), Quaternion.Euler(0, 0, 0));
             }
+            // if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
+            //     if(sprite.flipX){
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, 0, 0), playerRotation);
+            //     } else {
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), playerRotation);
+            //     }
+            // } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
+            //     if(sprite.flipX){
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), playerRotation);
+            //     } else {
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, 0, 0), playerRotation);
+            //     }
+            // } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
+            //     if(sprite.flipX){
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
+            //     } else {
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
+            //     }
+            // } else {
+            //     if(sprite.flipX){
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
+            //     } else {
+            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
+            //     }
+            // }
         }
     }
     private void Run()
@@ -236,18 +240,6 @@ public class hero : MonoBehaviour
                     break;
             }
             currentGravityDirection = Physics2D.gravity / 9.81F;
-        }
-    }
-
-    private Quaternion GetRotationQuaternionFromGravity(){
-        if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-            return Quaternion.Euler(0.0f, 0.0f, 0.0f);
-        } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-            return Quaternion.Euler(0.0f, 0.0f, 180.0f);
-        } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-            return Quaternion.Euler(0.0f, 0.0f, 90.0f);
-        } else {
-            return Quaternion.Euler(0.0f, 0.0f, -90.0f);
         }
     }
 

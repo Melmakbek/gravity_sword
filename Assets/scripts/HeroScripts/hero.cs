@@ -123,31 +123,6 @@ public class hero : MonoBehaviour
             } else {
                 boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), Quaternion.Euler(0, 0, 0));
             }
-            // if (Physics2D.gravity.x == 0 && Physics2D.gravity.y < 0){
-            //     if(sprite.flipX){
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, 0, 0), playerRotation);
-            //     } else {
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), playerRotation);
-            //     }
-            // } else if (Physics2D.gravity.x == 0 && Physics2D.gravity.y > 0) {
-            //     if(sprite.flipX){
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( + playerCollider.size.x / 2 + boxCollider.size.x / 2 + accuracyCheckArea, 0, 0), playerRotation);
-            //     } else {
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3( - playerCollider.size.x / 2 - boxCollider.size.x / 2 - accuracyCheckArea, 0, 0), playerRotation);
-            //     }
-            // } else if (Physics2D.gravity.x > 0 && Physics2D.gravity.y == 0) {
-            //     if(sprite.flipX){
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
-            //     } else {
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
-            //     }
-            // } else {
-            //     if(sprite.flipX){
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  + playerCollider.size.x / 2 + boxCollider.size.y / 2 + accuracyCheckArea, 0), playerRotation);
-            //     } else {
-            //         boxCollider.transform.SetLocalPositionAndRotation(new Vector3(0,  - playerCollider.size.x / 2 - boxCollider.size.y / 2 - accuracyCheckArea, 0), playerRotation);
-            //     }
-            // }
         }
     }
     private void Run()
